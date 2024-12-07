@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QR Code Generator</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background: linear-gradient(to right, #2c3e50, #4ca1af); 
+            margin: 0; 
+            padding: 0; 
+            color: #ecf0f1;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        .container { 
+            width: 100%; 
+            max-width: 600px; 
+            margin: 50px auto; 
+            background: linear-gradient(to right, #34495e, #2c3e50); 
+            padding: 20px; 
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); 
+            border-radius: 15px; 
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        h1 { 
+            text-align: center; 
+            color: #ecf0f1; 
+        }
+        form { 
+            display: flex; 
+            flex-direction: column; 
+        }
+        label { 
+            margin-bottom: 5px; 
+            color: #ecf0f1; 
+        }
+        input[type="text"] { 
+            width: 70%; 
+            padding: 10px; 
+            margin-bottom: 20px; 
+            border: 1px solid #7f8c8d; 
+            border-radius: 4px; 
+            background: #2c3e50; 
+            color: #ecf0f1;
+        }
+        button { 
+            padding: 10px; 
+            background: linear-gradient(to right, #3498db, #2980b9); 
+            color: #ecf0f1; 
+            border: none; 
+            border-radius: 25px; 
+            cursor: pointer; 
+            transition: background 0.3s ease; 
+        }
+        button:hover { 
+            background: linear-gradient(to right, #2980b9, #1c5980); 
+        }
+        .qr-code { 
+            text-align: center; 
+            margin-top: 20px; 
+            background: linear-gradient(to right, #3a6073, #16222a); 
+            padding: 20px; 
+            border-radius: 15px; 
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); 
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+        .qr-code img { 
+            max-width: 100%; 
+            height: auto; 
+        }
+        .qr-code a { 
+            display: inline-block; 
+            margin-top: 20px; 
+            padding: 10px 20px; 
+            background: linear-gradient(to right, #3498db, #2980b9); 
+            color: #ecf0f1; 
+            text-decoration: none; 
+            border-radius: 25px; 
+            transition: background 0.3s ease; 
+        }
+        .qr-code a:hover { 
+            background: linear-gradient(to right, #2980b9, #1c5980); 
+        }
+        .redirect { 
+            text-align: center; 
+            margin-top: 20px; 
+        }
+        .redirect a { 
+            display: inline-block; 
+            padding: 10px 20px; 
+            background: linear-gradient(to right, #3498db, #2980b9); 
+            color: #ecf0f1; 
+            text-decoration: none; 
+            border-radius: 25px; 
+            transition: background 0.3s ease; 
+        }
+        .redirect a:hover { 
+            background: linear-gradient(to right, #2980b9, #1c5980); 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>QR Code Generator</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Generate QR Code</button>
+        </form>
+        {% if qr_image_base64 %}
+            <div class="qr-code">
+                <h2>Your QR Code</h2>
+                <img src="data:image/png;base64,{{ qr_image_base64 }}" alt="QR Code">
+                <br>
+                <a href="data:image/png;base64,{{ qr_image_base64 }}" download="qr_code.png">Download QR Code</a>
+                <br>
+                <a href="{% url 'generate_qr_code' %}">Generate another QR Code</a>
+            </div>
+        {% endif %}
+        <div class="redirect">
+            <a href="{% url 'generate_qrs_from_excel' %}">Generate Multiple QR Codes from Excel</a>
+        </div>
+    </div>
+</body>
+</html>
