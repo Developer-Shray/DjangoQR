@@ -34,18 +34,12 @@ def generate_qr(request):
 def generate_qrs_from_excel(request):
     if request.method == 'POST':
         form = ExcelUploadForm(request.POST, request.FILES)
-        paste_form = PasteDataForm(request.POST)
         if form.is_valid():
             file = request.FILES['file']
             df = pd.read_excel(file)
-        elif paste_form.is_valid():
-            data = paste_form.cleaned_data['data']
-            rows = data.split('\n')
-            df = pd.DataFrame(rows, columns=['Data'])
         else:
             form = ExcelUploadForm()
-            paste_form = PasteDataForm()
-            return render(request, 'upload.html', {'form': form, 'paste_form': paste_form})
+            return render(request, 'upload.html', {'form': form})
 
         pdf = FPDF()
         pdf.set_auto_page_break(auto=True, margin=15)
@@ -57,14 +51,15 @@ def generate_qrs_from_excel(request):
             if qr_count % qr_per_page == 0:
                 pdf.add_page()
             
-            data = row.iloc[0]  # Use iloc to access by position
+            qr_data = row.iloc[0]  # Use iloc to access by position
+            scratch_code = row.iloc[1] if len(row) > 1 else ''
             qr = qrcode.QRCode(
                 version=1,
                 error_correction=qrcode.constants.ERROR_CORRECT_L,
                 box_size=10,
                 border=4,
             )
-            qr.add_data(data)
+            qr.add_data(qr_data)
             qr.make(fit=True)
             img = qr.make_image(fill='black', back_color='white')
             buffer = BytesIO()
@@ -82,9 +77,12 @@ def generate_qrs_from_excel(request):
             pdf.image(tmp_file_name, x=x, y=y, w=90, h=90)
             os.unlink(tmp_file_name)
             
-            pdf.set_xy(x, y + 95)
-            pdf.set_font("Arial", size=12)
-            pdf.cell(90, 10, f"QR {index + 1}", ln=True)
+            pdf.set_xy(x, y + 85)
+            pdf.set_font("Arial", size=10)
+            pdf.cell(90, 5, f"QR {index + 1}", ln=True)
+            
+            pdf.set_xy(x, y + 90)
+            pdf.cell(90, 5, f"Scratch Code: {scratch_code}", ln=True)
             
             qr_count += 1
         
@@ -95,11 +93,13 @@ def generate_qrs_from_excel(request):
         return response
     else:
         form = ExcelUploadForm()
-        paste_form = PasteDataForm()
-    return render(request, 'upload.html', {'form': form, 'paste_form': paste_form})
+    return render(request, 'upload.html', {'form': form})
+
 
 def download_template(request):
-    df = pd.DataFrame(columns=['Data'])
+    # Create a simple DataFrame with columns for QR code data and scratch codes
+    df = pd.DataFrame(columns=['QR Data', 'Scratch Code'])
+    # Convert the DataFrame to an Excel file
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename="qr_template.xlsx"'
     df.to_excel(response, index=False)

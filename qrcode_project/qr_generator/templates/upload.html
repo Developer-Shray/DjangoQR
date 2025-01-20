@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Generate Multiple QRs</title>
+    <title>Upload Excel File</title>
     <style>
         body { 
             font-family: Arial, sans-serif; 
@@ -33,7 +33,7 @@
             margin-bottom: 5px; 
             color: #ecf0f1; 
         }
-        input[type="file"], textarea { 
+        input[type="file"] { 
             width: 100%; 
             padding: 10px; 
             margin-bottom: 20px; 
@@ -74,16 +74,11 @@
 </head>
 <body>
     <div class="container">
-        <h1>Upload Excel File or Paste Data</h1>
+        <h1>Upload Excel File</h1>
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit">Generate QR Codes from Excel</button>
-        </form>
-        <form method="post">
-            {% csrf_token %}
-            {{ paste_form.as_p }}
-            <button type="submit">Generate QR Codes from Pasted Data</button>
+            <button type="submit">Generate QR Codes</button>
         </form>
         <div class="download-template">
             <a href="{% url 'download_template' %}">Download Excel Template</a>
