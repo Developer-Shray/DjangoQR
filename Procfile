@@ -1,1 +1,1 @@
-web: gunicorn 'DjangoQR.wsgi'
+web: gunicorn 'gunicorn 'name-of-application.wsgi'
